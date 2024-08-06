@@ -10,14 +10,15 @@ function getChangedFiles() {
   try {
     const result = execSync("git diff --name-only HEAD~1 HEAD").toString();
     changedFiles = result.split("\n").filter((file) => file.endsWith(".js"));
+    console.log("Changed files:", changedFiles);
   } catch (error) {
     console.log("Error getting changed files:", error.message);
-    // Handle cases where there's no previous commit or other issues
     console.log("Fallback to getting all files");
     changedFiles = execSync("git ls-tree -r HEAD --name-only")
       .toString()
       .split("\n")
       .filter((file) => file.endsWith(".js"));
+    console.log("All files:", changedFiles);
   }
   return changedFiles;
 }
