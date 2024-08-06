@@ -1,4 +1,4 @@
-name: CI
+name: Test Generation and Execution
 
 on:
   push:
@@ -9,7 +9,7 @@ on:
       - master
 
 jobs:
-  build:
+  analyze-and-test:
     runs-on: ubuntu-latest
 
     steps:
@@ -23,6 +23,9 @@ jobs:
 
       - name: Install dependencies
         run: npm install
+
+      - name: Analyze code changes and generate tests
+        run: node ./scripts/generate-tests.js
 
       - name: Run tests
         run: npm test
