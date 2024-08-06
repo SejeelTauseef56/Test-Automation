@@ -10,13 +10,15 @@ const coverageDir = path.resolve(__dirname, "../coverage");
 function getChangedFiles() {
   let changedFiles = [];
   try {
+    // Fetch the latest changes
+    execSync("git fetch origin");
     const result = execSync("git diff --name-only HEAD~1 HEAD").toString();
     changedFiles = result
       .split("\n")
       .filter((file) => file.endsWith(".js") && file.startsWith("src/"));
     console.log("Changed files:", changedFiles);
   } catch (error) {
-    console.log("Error getting changed files:", error.message);
+    console.error("Error getting changed files:", error.message);
   }
   return changedFiles;
 }
@@ -32,7 +34,7 @@ function getCoverage() {
     );
     coverage = JSON.parse(coverageData);
   } catch (error) {
-    console.log("Error collecting coverage:", error.message);
+    console.error("Error collecting coverage:", error.message);
   }
   return coverage;
 }
