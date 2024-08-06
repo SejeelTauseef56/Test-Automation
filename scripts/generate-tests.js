@@ -2,23 +2,31 @@ const fs = require("fs");
 const path = require("path");
 const { execSync } = require("child_process");
 
-// Define directories to scan for changes
 const srcDir = path.resolve(__dirname, "../src");
 const testsDir = path.resolve(__dirname, "../tests");
 
-// Function to find all changed files (example: using git diff)
 function getChangedFiles() {
-  const result = execSync("git diff --name-only HEAD~1 HEAD").toString();
-  return result.split("\n").filter((file) => file.endsWith(".js"));
+  let changedFiles = [];
+  try {
+    const result = execSync("git diff --name-only HEAD~1 HEAD").toString();
+    changedFiles = result.split("\n").filter((file) => file.endsWith(".js"));
+  } catch (error) {
+    console.log("Error getting changed files:", error.message);
+    // Handle cases where there's no previous commit or other issues
+    console.log("Fallback to getting all files");
+    changedFiles = execSync("git ls-tree -r HEAD --name-only")
+      .toString()
+      .split("\n")
+      .filter((file) => file.endsWith(".js"));
+  }
+  return changedFiles;
 }
 
-// Example function to generate a simple test based on file name
 function generateTestsForFile(filePath) {
   const fileName = path.basename(filePath, ".js");
   const testFilePath = path.resolve(testsDir, `${fileName}.test.js`);
 
   if (!fs.existsSync(testFilePath)) {
-    // Create a simple test file
     const testContent = `
     const { ${fileName} } = require('../src/${fileName}');
 
