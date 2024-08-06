@@ -6,6 +6,7 @@ const srcDir = path.resolve(__dirname, "../src");
 const testsDir = path.resolve(__dirname, "../tests");
 const coverageDir = path.resolve(__dirname, "../coverage");
 
+// Get the list of changed files
 function getChangedFiles() {
   let changedFiles = [];
   try {
@@ -20,6 +21,7 @@ function getChangedFiles() {
   return changedFiles;
 }
 
+// Get coverage data from Jest
 function getCoverage() {
   let coverage = {};
   try {
@@ -35,11 +37,13 @@ function getCoverage() {
   return coverage;
 }
 
+// Check if a file is covered
 function isCovered(file, coverage) {
   const filePath = path.relative(srcDir, file);
   return coverage[filePath] && coverage[filePath].statements.pct > 0;
 }
 
+// Generate a test file if it doesn't exist
 function generateTestsForFile(filePath) {
   const fileName = path.basename(filePath, ".js");
   const testFilePath = path.resolve(testsDir, `${fileName}.test.js`);
