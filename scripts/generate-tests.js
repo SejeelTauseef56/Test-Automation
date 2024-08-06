@@ -8,8 +8,11 @@ const testsDir = path.resolve(__dirname, "../tests");
 function getChangedFiles() {
   let changedFiles = [];
   try {
+    // Get the list of changed files
     const result = execSync("git diff --name-only HEAD~1 HEAD").toString();
-    changedFiles = result.split("\n").filter((file) => file.endsWith(".js"));
+    changedFiles = result
+      .split("\n")
+      .filter((file) => file.endsWith(".js") && file.startsWith("src/"));
     console.log("Changed files:", changedFiles);
   } catch (error) {
     console.log("Error getting changed files:", error.message);
@@ -17,7 +20,7 @@ function getChangedFiles() {
     changedFiles = execSync("git ls-tree -r HEAD --name-only")
       .toString()
       .split("\n")
-      .filter((file) => file.endsWith(".js"));
+      .filter((file) => file.endsWith(".js") && file.startsWith("src/"));
     console.log("All files:", changedFiles);
   }
   return changedFiles;
