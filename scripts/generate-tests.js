@@ -4,11 +4,11 @@ const { execSync } = require("child_process");
 
 const srcDir = path.resolve(__dirname, "../src");
 const testsDir = path.resolve(__dirname, "../tests");
+const coverageDir = path.resolve(__dirname, "../coverage");
 
 function getChangedFiles() {
   let changedFiles = [];
   try {
-    // Get the list of changed files
     const result = execSync("git diff --name-only HEAD~1 HEAD").toString();
     changedFiles = result
       .split("\n")
@@ -16,14 +16,28 @@ function getChangedFiles() {
     console.log("Changed files:", changedFiles);
   } catch (error) {
     console.log("Error getting changed files:", error.message);
-    console.log("Fallback to getting all files");
-    changedFiles = execSync("git ls-tree -r HEAD --name-only")
-      .toString()
-      .split("\n")
-      .filter((file) => file.endsWith(".js") && file.startsWith("src/"));
-    console.log("All files:", changedFiles);
   }
   return changedFiles;
+}
+
+function getCoverage() {
+  let coverage = {};
+  try {
+    execSync("npx jest --coverage");
+    const coverageData = fs.readFileSync(
+      path.join(coverageDir, "coverage-final.json"),
+      "utf8"
+    );
+    coverage = JSON.parse(coverageData);
+  } catch (error) {
+    console.log("Error collecting coverage:", error.message);
+  }
+  return coverage;
+}
+
+function isCovered(file, coverage) {
+  const filePath = path.relative(srcDir, file);
+  return coverage[filePath] && coverage[filePath].statements.pct > 0;
 }
 
 function generateTestsForFile(filePath) {
@@ -49,8 +63,10 @@ function generateTestsForFile(filePath) {
 
 // Main script execution
 const changedFiles = getChangedFiles();
+const coverage = getCoverage();
+
 changedFiles.forEach((file) => {
-  if (file.startsWith("src/")) {
+  if (!isCovered(file, coverage)) {
     generateTestsForFile(file.replace("src/", ""));
   }
 });

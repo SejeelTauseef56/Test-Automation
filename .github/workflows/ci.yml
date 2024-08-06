@@ -16,7 +16,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
         with:
-          fetch-depth: 0 # Fetch all history for commits
+          fetch-depth: 0 # Fetch full history to compare commits
 
       - name: Set up Node.js
         uses: actions/setup-node@v3
@@ -26,8 +26,10 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Analyze code changes and generate tests
-        run: node ./scripts/generate-tests.js
+      - name: Collect coverage and analyze code changes
+        run: |
+          npx jest --coverage
+          node ./scripts/generate-tests.js
 
       - name: Run tests
         run: npm test
